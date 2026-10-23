@@ -1,0 +1,84 @@
+﻿@{
+    ViewBag.Title = "Home Page";
+}
+
+<style>
+    body {
+        background-image: url("@Url.Content("~/Content/work01.jpg")");
+        background-size: cover;
+        background-repeat: no-repeat;
+        background-attachment: fixed;
+        background-position: center;
+        margin: 0;
+        padding: 0;
+    }
+
+    /* 主容器：控制整體垂直與水平置中 */
+    .hero-wrapper {
+        min-height: calc(100vh - 60px);
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-end; /* 推至中下方 */
+        align-items: center;
+        padding-bottom: 50px;       /* 調整離底部的距離 */
+    }
+
+    /* 內層白框：縮小寬度與內距 */
+    .compact-feature-card {
+        background: rgba(255, 255, 255, 0.95); /* 微透白底 */
+        backdrop-filter: blur(6px);            /* 後方微模糊 */
+        padding: 20px 24px;                    /* 縮小上下內距 */
+        border-radius: 16px;
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+        max-width: 380px;                      /* 限制白框最大寬度 */
+        width: 90%;                            /* 手機端自動伸縮 */
+        text-align: center;
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .compact-feature-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 12px 28px rgba(0, 0, 0, 0.18);
+    }
+
+    /* 標題與內文層次優化 */
+    .compact-feature-card .main-title {
+        font-size: 2rem;/*字型大小*/
+        font-weight: 700;
+        color: #1e293b;
+        margin: 0 0 6px 0;
+    }
+
+    .compact-feature-card .sub-title {
+        font-size: 1.5rem;
+        font-weight: 600;
+        color: #475569;
+        margin: 0 0 8px 0;
+    }
+
+    .compact-feature-card p {
+        font-size: 0.88rem;
+        color: #64748b;
+        margin-bottom: 16px;
+        line-height: 1.4;
+    }
+
+    .compact-feature-card .btn {
+        border-radius: 10px;
+        padding: 10px 0;
+        font-weight: 600;
+        font-size: 0.95rem;
+    }
+</style>
+
+<main class="hero-wrapper">
+    <div class="compact-feature-card">
+        <h2 class="main-title">🎪 審計新村市集</h2>
+        <div class="sub-title">🛍️ 攤販資訊</div>
+        <p>查看最新審計新村市集攤販與品牌名單。</p>
+
+        <a href="@Url.Action("Market1", "Market")" class="btn btn-primary w-100">
+            進入查看
+        </a>
+    </div>
+</main>

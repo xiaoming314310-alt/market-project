@@ -1,0 +1,56 @@
+﻿@{
+    ViewBag.Title = "Market36";
+}
+
+<h2>Aura Crystal 水晶手鏈</h2>
+<style>
+    .social-links {
+        display: flex;
+        gap: 8px;
+    }
+
+    .btn-social {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding: 5px 14px;
+        font-size: 0.85rem;
+        font-weight: 600;
+        border-radius: 6px;
+        text-decoration: none;
+        color: #fff !important;
+        transition: opacity 0.2s ease;
+    }
+
+        .btn-social:hover {
+            opacity: 0.85;
+            text-decoration: none;
+        }
+
+    .btn-fb {
+        background-color: #1877f2;
+    }
+
+    .btn-ig {
+        background: linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%);
+    }
+
+    .btn-threads {
+        background-color: #000000;
+    }
+
+    @@media (max-width: 600px) {
+        .page-header-wrapper {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+
+        .search-box-wrapper {
+            max-width: 100%;
+        }
+    }
+</style>
+
+<div class="social-links">
+    <a href="https://www.instagram.com/_aura_crystalll/" target="_blank" class="btn-social btn-ig">IG</a>
+</div>

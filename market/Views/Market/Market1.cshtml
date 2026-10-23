@@ -1,0 +1,1011 @@
+﻿
+@{
+    ViewBag.Title = "market1";
+}
+
+<style>
+    /* 容器與標題樣式 */
+    .vendor-container {
+        max-width: 1100px;
+        margin: 0 auto;
+        padding: 20px 15px;
+    }
+
+    /* 頂部區域：彈性排版以支援搜尋框放右上 */
+    .page-header-wrapper {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 25px;
+        flex-wrap: wrap; /* 支援手機端自動換行 */
+        gap: 15px;
+    }
+
+    .page-header h1 {
+        margin: 0;
+        font-size: 2rem;
+        color: #2c3e50;
+    }
+
+    /* ===== 橫向滑動圖片輪播 (Banner Slider) ===== */
+    .banner-slider-container {
+        width: 100%;
+        margin-bottom: 35px;
+        overflow-x: auto;
+        scroll-snap-type: x mandatory;
+        scroll-behavior: smooth;
+        display: flex;
+        gap: 15px;
+        padding-bottom: 10px; /* 給滾動條留白 */
+        -webkit-overflow-scrolling: touch; /* 提升iOS滑動順暢度 */
+    }
+
+        /* 隱藏預設滾動條 (可選，保持畫面乾淨) */
+        .banner-slider-container::-webkit-scrollbar {
+            height: 6px;
+        }
+
+        .banner-slider-container::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 10px;
+        }
+
+    .banner-item {
+        flex: 0 0 85%; /* 手機版露出一點下一張 */
+        max-width: 800px;
+        height: 260px;
+        scroll-snap-align: center;
+        border-radius: 16px;
+        overflow: hidden;
+        position: relative;
+        box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
+    }
+
+        .banner-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.4s ease;
+        }
+
+        .banner-item:hover img {
+            transform: scale(1.03);
+        }
+
+    .banner-caption {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        padding: 20px;
+        background: linear-gradient(transparent, rgba(0, 0, 0, 0.7));
+        color: #ffffff;
+        font-size: 1.1rem;
+        font-weight: 600;
+    }
+
+    /* 搜尋框樣式 */
+    .search-box-wrapper {
+        width: 100%;
+        max-width: 350px;
+        margin: 0;
+        position: relative;
+    }
+
+    .search-input {
+        width: 100%;
+        padding: 10px 40px 10px 16px;
+        font-size: 0.95rem;
+        border: 2px solid #e2e8f0;
+        border-radius: 25px;
+        outline: none;
+        transition: all 0.3s ease;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
+    }
+
+        .search-input:focus {
+            border-color: #3b82f6;
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.2);
+        }
+
+    .search-clear-btn {
+        position: absolute;
+        right: 12px;
+        top: 50%;
+        transform: translateY(-50%);
+        background: none;
+        border: none;
+        font-size: 1.1rem;
+        color: #94a3b8;
+        cursor: pointer;
+        display: none;
+        padding: 0;
+        line-height: 1;
+    }
+
+        .search-clear-btn:hover {
+            color: #64748b;
+        }
+
+    /* 無搜尋結果提示 */
+    .no-results {
+        display: none;
+        text-align: center;
+        padding: 40px 20px;
+        color: #64748b;
+        font-size: 1.1rem;
+        background: #f8fafc;
+        border-radius: 12px;
+        margin-top: 20px;
+    }
+
+    /* 類別標題與網格 */
+    .category-section {
+        margin-bottom: 35px;
+    }
+
+    .category-title {
+        color: #2c3e50;
+        border-bottom: 2px solid #e9ecef;
+        padding-bottom: 8px;
+        margin-top: 0;
+        margin-bottom: 20px;
+        font-weight: 700;
+        letter-spacing: 1px;
+    }
+
+    /* 卡片網格系統 */
+    .vendor-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+        gap: 16px;
+    }
+
+    .vendor-card {
+        background: #ffffff;
+        border: 1px solid #eef2f5;
+        border-radius: 10px;
+        padding: 16px;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        box-shadow: 0 2px 6px rgba(0,0,0,0.04);
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+        .vendor-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 15px rgba(0,0,0,0.08);
+        }
+
+        .vendor-card h5 {
+            margin: 0 0 12px 0;
+            font-size: 1rem;
+            font-weight: 600;
+            color: #333;
+            line-height: 1.4;
+        }
+
+    /* 日期標籤 Badge */
+    .date-badge {
+        display: inline-block;
+        font-size: 0.75rem;
+        padding: 2px 8px;
+        border-radius: 12px;
+        background-color: #e3f2fd;
+        color: #1976d2;
+        font-weight: bold;
+        margin-left: 6px;
+        vertical-align: middle;
+    }
+
+    /* 社群按鈕樣式 */
+    .social-links {
+        display: flex;
+        gap: 8px;
+    }
+
+    .vendor-btn-bg {
+        background-size: cover; /* 圖片等比例填滿按鈕 */
+        background-position: center; /* 圖片置中 */
+        border: none; /* 邊框開關 */
+        color: #ffffff !important; /* 文字顏色 */
+        font-weight: bold; /* 文字加粗 */
+        text-shadow: 0 2px 4px rgba(0,0,0,0.6); /* 文字陰影，防止背景圖干擾閱讀 */
+        padding: 50px 50px; /* 增加按鈕上下高度 */
+        position: relative;
+        overflow: hidden;
+        transition: transform 0.2s ease, filter 0.2s ease;
+    }
+
+        .vendor-btn-bg:hover {
+            filter: brightness(1.1); /* 滑鼠懸停時微亮 */
+            transform: translateY(-2px);
+        }
+
+    .btn-social {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding: 5px 14px;
+        font-size: 0.85rem;
+        font-weight: 600;
+        border-radius: 6px;
+        text-decoration: none;
+        color: #fff !important;
+        transition: opacity 0.2s ease;
+    }
+
+        .btn-social:hover {
+            opacity: 0.85;
+            text-decoration: none;
+        }
+
+    .btn-fb {
+        background-color: #1877f2;
+    }
+
+    .btn-ig {
+        background: linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%);
+    }
+
+    .btn-threads {
+        background-color: #000000;
+    }
+
+    /* 手機端響應式調整 */
+    @@media (max-width: 600px) {
+        .page-header-wrapper {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+
+        .search-box-wrapper {
+            max-width: 100%;
+        }
+
+        .banner-item {
+            flex: 0 0 92%;
+            height: 180px;
+        }
+    }
+</style>
+
+<div class="vendor-container">
+
+    <!-- ===== 頁頭與右上角搜尋框 ===== -->
+    <div class="page-header-wrapper">
+        <div class="page-header">
+            <h1>🎪 攤販資料</h1>
+        </div>
+
+        <div class="search-box-wrapper">
+            <input type="text" id="vendorSearchInput" class="search-input" placeholder="🔍 搜尋攤販、日期或類別..." onkeyup="filterVendors()" />
+            <button id="searchClearBtn" class="search-clear-btn" onclick="clearSearch()">&times;</button>
+        </div>
+    </div>
+
+    <!-- ===== 橫向滑動圖片 Banner 區域 ===== -->
+    <div class="banner-slider-container">
+        <div class="banner-item">
+            <img src="@Url.Content("~/Content/work01.jpg")" alt="市集活動熱鬧現場" />
+            <div class="banner-caption">✨ 週末市集熱鬧登場</div>
+        </div>
+        <div class="banner-item">
+            <img src="@Url.Content("~/Content/work02.jpg")" alt="手作創意質感攤位" />
+            <div class="banner-caption">🎨 探索獨一無二的手作文創</div>
+        </div>
+        <div class="banner-item">
+            <img src="@Url.Content("~/Content/gn1.jpg")" alt="特色美食與香氛攤販" />
+            <div class="banner-caption">🍰 甜點與香氛品味生活</div>
+        </div>
+    </div>
+
+    <!-- 無搜尋結果提示 -->
+    <div id="noResults" class="no-results">
+        😢 查無符合關鍵字「<span id="searchKeywordText"></span>」的攤販，請嘗試搜尋其他關鍵字。
+    </div>
+
+    <!-- 1. 手藝 -->
+    <div class="category-section">
+        <h3 class="category-title">✵ 𝐂𝐑𝐀𝐅𝐓 手藝</h3>
+        <div class="vendor-grid">
+            <div class="vendor-card">
+                <a href="@Url.Action("Market2", "Market")"
+                   class="btn btn-primary w-100 vendor-btn-bg"
+                   style="background-image: url('@Url.Content("~/Content/1.jpg")');">
+                    CC毛線
+                </a>
+            </div>
+
+            <div class="vendor-card">
+                <a href="@Url.Action("Market3", "Market")"
+                   class="btn btn-primary w-100 vendor-btn-bg"
+                   style="background-image: url('@Url.Content("~/Content/2.jpg")');">
+                    牧芯布典
+                </a>
+            </div>
+
+            <div class="vendor-card">
+                <a href="@Url.Action("Market4", "Market")"
+                   class="btn btn-primary w-100 vendor-btn-bg"
+                   style="background-image: url('@Url.Content("~/Content/3.jpg")');">
+                    Classmate創意工作室
+                </a>
+            </div>
+
+            <div class="vendor-card">
+                <a href="@Url.Action("Market5", "Market")"
+                   class="btn btn-primary w-100 vendor-btn-bg"
+                   style="background-image: url('@Url.Content("~/Content/4.jpg")');">
+                    小牛村Calf Village
+                </a>
+            </div>
+
+            <div class="vendor-card">
+                <a href="@Url.Action("Market6", "Market")"
+                   class="btn btn-primary w-100 vendor-btn-bg"
+                   style="background-image: url('@Url.Content("~/Content/5.jpg")');">
+                    牛仔咩咩-童。心。手創
+                </a>
+            </div>
+
+            <div class="vendor-card">
+                <a href="@Url.Action("Market7", "Market")"
+                   class="btn btn-primary w-100 vendor-btn-bg"
+                   style="background-image: url('@Url.Content("~/Content/6.jpg")');">
+                    我是，克麗絲Christian
+                </a>
+            </div>
+
+            <div class="vendor-card">
+                <a href="@Url.Action("Market8", "Market")"
+                   class="btn btn-primary w-100 vendor-btn-bg"
+                   style="background-image: url('@Url.Content("~/Content/7.jpg")');">
+                    幸福洋房
+                </a>
+            </div>
+
+            <div class="vendor-card">
+                <a href="@Url.Action("Market9", "Market")"
+                   class="btn btn-primary w-100 vendor-btn-bg"
+                   style="background-image: url('@Url.Content("~/Content/8.jpg")');">
+                    重要的小事LittleMatter
+                </a>
+            </div>
+
+            <div class="vendor-card">
+                <a href="@Url.Action("Market10", "Market")"
+                   class="btn btn-primary w-100 vendor-btn-bg"
+                   style="background-image: url('@Url.Content("~/Content/9.jpg")');">
+                    揪兜媽爹
+                </a>
+            </div>
+
+            <div class="vendor-card">
+                <a href="@Url.Action("Market11", "Market")"
+                   class="btn btn-primary w-100 vendor-btn-bg"
+                   style="background-image: url('@Url.Content("~/Content/10.jpg")');">
+                    萌芽髮箍製造所
+                </a>
+            </div>
+
+            <div class="vendor-card">
+                <a href="@Url.Action("Market12", "Market")"
+                   class="btn btn-primary w-100 vendor-btn-bg"
+                   style="background-image: url('@Url.Content("~/Content/11.jpg")');">
+                    繩緊嘻嘻
+                </a>
+            </div>
+
+            <div class="vendor-card">
+                <a href="@Url.Action("Market13", "Market")"
+                   class="btn btn-primary w-100 vendor-btn-bg"
+                   style="background-image: url('@Url.Content("~/Content/12.jpg")');">
+                    襪太空Socks Space
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- 2. 衣著 -->
+    <div class="category-section">
+        <h3 class="category-title">✵ 𝐂𝐋𝐎𝐓𝐇𝐈𝐍𝐆𝐒 衣著</h3>
+        <div class="vendor-grid">
+            <div class="vendor-card">
+                <a href="@Url.Action("Market14", "Market")"
+                   class="btn btn-primary w-100 vendor-btn-bg"
+                   style="background-image: url('@Url.Content("~/Content/13.jpg")');">
+                    Dr.黑德森
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- 3. 香氛 -->
+    <div class="category-section">
+        <h3 class="category-title">✵ 𝐅𝐑𝐀𝐆𝐑𝐀𝐍𝐂𝐄 香氛</h3>
+        <div class="vendor-grid">
+            <div class="vendor-card">
+                <a href="@Url.Action("Market15", "Market")"
+                   class="btn btn-primary w-100 vendor-btn-bg"
+                   style="background-image: url('@Url.Content("~/Content/14.jpg")');">
+                    古浥香合 <span class="date-badge">10/17</span>
+                </a>
+            </div>
+
+            <div class="vendor-card">
+                <a href="@Url.Action("Market16", "Market")"
+                   class="btn btn-primary w-100 vendor-btn-bg"
+                   style="background-image: url('@Url.Content("~/Content/15.jpg")');">
+                    蘋安手皂坊 <span class="date-badge">10/17</span>
+                </a>
+            </div>
+
+            <div class="vendor-card">
+                <a href="@Url.Action("Market17", "Market")"
+                   class="btn btn-primary w-100 vendor-btn-bg"
+                   style="background-image: url('@Url.Content("~/Content/16.jpg")');">
+                    Lepury 樂樸草本
+                </a>
+            </div>
+
+            <div class="vendor-card">
+                <a href="@Url.Action("Market18", "Market")"
+                   class="btn btn-primary w-100 vendor-btn-bg"
+                   style="background-image: url('@Url.Content("~/Content/17.jpg")');">
+                    MIHER茉荷
+                </a>
+            </div>
+
+            <div class="vendor-card">
+                <a href="@Url.Action("Market19", "Market")"
+                   class="btn btn-primary w-100 vendor-btn-bg"
+                   style="background-image: url('@Url.Content("~/Content/18.jpg")');">
+                    Mo&Moi 茉苜（客家香氛）
+                </a>
+            </div>
+
+            <div class="vendor-card">
+                <a href="@Url.Action("Market20", "Market")"
+                   class="btn btn-primary w-100 vendor-btn-bg"
+                   style="background-image: url('@Url.Content("~/Content/19.jpg")');">
+                    素天然手工皂
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- 4. 藝術品 -->
+    <div class="category-section">
+        <h3 class="category-title">✵ 𝐀𝐑𝐓 𝐖𝐎𝐑𝐊 藝術品</h3>
+        <div class="vendor-grid">
+            <div class="vendor-card">
+                <a href="@Url.Action("Market21", "Market")"
+                   class="btn btn-primary w-100 vendor-btn-bg"
+                   style="background-image: url('@Url.Content("~/Content/20.jpg")');">
+                    J X P 職人背帶 <span class="date-badge">10/17</span>
+                </a>
+            </div>
+
+            <div class="vendor-card">
+                <a href="@Url.Action("Market22", "Market")"
+                   class="btn btn-primary w-100 vendor-btn-bg"
+                   style="background-image: url('@Url.Content("~/Content/21.jpg")');">
+                    春天王國Spring Kingdom <span class="date-badge">10/17</span>
+                </a>
+            </div>
+
+            <div class="vendor-card">
+                <a href="@Url.Action("Market23", "Market")"
+                   class="btn btn-primary w-100 vendor-btn-bg"
+                   style="background-image: url('@Url.Content("~/Content/22.jpg")');">
+                    繪在四次元 <span class="date-badge">10/17</span>
+                </a>
+            </div>
+
+            <div class="vendor-card">
+                <a href="@Url.Action("Market24", "Market")"
+                   class="btn btn-primary w-100 vendor-btn-bg"
+                   style="background-image: url('@Url.Content("~/Content/23.jpg")');">
+                    Hong Hong · Daily <span class="date-badge">10/18</span>
+                </a>
+            </div>
+
+            <div class="vendor-card">
+                <a href="@Url.Action("Market25", "Market")"
+                   class="btn btn-primary w-100 vendor-btn-bg"
+                   style="background-image: url('@Url.Content("~/Content/24.jpg")');">
+                    迷你工作室 <span class="date-badge">10/18</span>
+                </a>
+            </div>
+
+            <div class="vendor-card">
+                <a href="@Url.Action("Market26", "Market")"
+                   class="btn btn-primary w-100 vendor-btn-bg"
+                   style="background-image: url('@Url.Content("~/Content/25.jpg")');">
+                    33.插畫
+                </a>
+            </div>
+
+            <div class="vendor-card">
+                <a href="@Url.Action("Market27", "Market")"
+                   class="btn btn-primary w-100 vendor-btn-bg"
+                   style="background-image: url('@Url.Content("~/Content/26.jpg")');">
+                    Central Glass
+                </a>
+            </div>
+
+            <div class="vendor-card">
+                <a href="@Url.Action("Market28", "Market")"
+                   class="btn btn-primary w-100 vendor-btn-bg"
+                   style="background-image: url('@Url.Content("~/Content/27.jpg")');">
+                    Hi你好創意設計
+                </a>
+            </div>
+
+            <div class="vendor-card">
+                <a href="@Url.Action("Market29", "Market")"
+                   class="btn btn-primary w-100 vendor-btn-bg"
+                   style="background-image: url('@Url.Content("~/Content/28.jpg")');">
+                    木樂禾麥
+                </a>
+            </div>
+
+            <div class="vendor-card">
+                <a href="@Url.Action("Market30", "Market")"
+                   class="btn btn-primary w-100 vendor-btn-bg"
+                   style="background-image: url('@Url.Content("~/Content/29.jpg")');">
+                    石芳工坊
+                </a>
+            </div>
+
+            <div class="vendor-card">
+                <a href="@Url.Action("Market31", "Market")"
+                   class="btn btn-primary w-100 vendor-btn-bg"
+                   style="background-image: url('@Url.Content("~/Content/30.jpg")');">
+                    花好悅圓
+                </a>
+            </div>
+
+            <div class="vendor-card">
+                <a href="@Url.Action("Market32", "Market")"
+                   class="btn btn-primary w-100 vendor-btn-bg"
+                   style="background-image: url('@Url.Content("~/Content/31.jpg")');">
+                    菜菜莫娜の手工藝
+                </a>
+            </div>
+
+            <div class="vendor-card">
+                <a href="@Url.Action("Market33", "Market")"
+                   class="btn btn-primary w-100 vendor-btn-bg"
+                   style="background-image: url('@Url.Content("~/Content/32.jpg")');">
+                    愛玩木
+                </a>
+            </div>
+
+            <div class="vendor-card">
+                <a href="@Url.Action("Market34", "Market")"
+                   class="btn btn-primary w-100 vendor-btn-bg"
+                   style="background-image: url('@Url.Content("~/Content/33.jpg")');">
+                    暖慕手作
+                </a>
+            </div>
+
+            <div class="vendor-card">
+                <a href="@Url.Action("Market35", "Market")"
+                   class="btn btn-primary w-100 vendor-btn-bg"
+                   style="background-image: url('@Url.Content("~/Content/34.jpg")');">
+                    超猴toy客製化
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- 5. 飾品 -->
+    <div class="category-section">
+        <h3 class="category-title">✵ 𝐀𝐂𝐂 飾品</h3>
+        <div class="vendor-grid">
+            <div class="vendor-card">
+                <a href="@Url.Action("Market36", "Market")"
+                   class="btn btn-primary w-100 vendor-btn-bg"
+                   style="background-image: url('@Url.Content("~/Content/35.jpg")');">
+                    Aura Crystal 水晶手鏈 <span class="date-badge">10/17</span>
+                </a>
+            </div>
+
+            <div class="vendor-card">
+                <a href="@Url.Action("Market37", "Market")"
+                   class="btn btn-primary w-100 vendor-btn-bg"
+                   style="background-image: url('@Url.Content("~/Content/36.jpg")');">
+                    俞二手作 <span class="date-badge">10/17</span>
+                </a>
+            </div>
+
+            <div class="vendor-card">
+                <a href="@Url.Action("Market38", "Market")"
+                   class="btn btn-primary w-100 vendor-btn-bg"
+                   style="background-image: url('@Url.Content("~/Content/37.jpg")');">
+                    晶宇之翼 <span class="date-badge">10/17</span>
+                </a>
+            </div>
+
+            <div class="vendor-card">
+                <a href="@Url.Action("Market39", "Market")"
+                   class="btn btn-primary w-100 vendor-btn-bg"
+                   style="background-image: url('@Url.Content("~/Content/38.jpg")');">
+                    森日藝品美學 <span class="date-badge">10/17</span>
+                </a>
+            </div>
+
+            <div class="vendor-card">
+                <a href="@Url.Action("Market40", "Market")"
+                   class="btn btn-primary w-100 vendor-btn-bg"
+                   style="background-image: url('@Url.Content("~/Content/39.jpg")');">
+                    Chulena丘萊娜 <span class="date-badge">10/18</span>
+                </a>
+            </div>
+
+            <div class="vendor-card">
+                <a href="@Url.Action("Market41", "Market")"
+                   class="btn btn-primary w-100 vendor-btn-bg"
+                   style="background-image: url('@Url.Content("~/Content/40.jpg")');">
+                    CM·Art x 手作
+                </a>
+            </div>
+
+            <div class="vendor-card">
+                <a href="@Url.Action("Market42", "Market")"
+                   class="btn btn-primary w-100 vendor-btn-bg"
+                   style="background-image: url('@Url.Content("~/Content/41.jpg")');">
+                    Eviexzoe
+                </a>
+            </div>
+
+            <div class="vendor-card">
+                <a href="@Url.Action("Market43", "Market")"
+                   class="btn btn-primary w-100 vendor-btn-bg"
+                   style="background-image: url('@Url.Content("~/Content/42.jpg")');">
+                    Gin Select
+                </a>
+            </div>
+
+            <div class="vendor-card">
+                <a href="@Url.Action("Market44", "Market")"
+                   class="btn btn-primary w-100 vendor-btn-bg"
+                   style="background-image: url('@Url.Content("~/Content/43.jpg")');">
+                    LITTLE ARTISAN-小工匠的密室
+                </a>
+            </div>
+
+            <div class="vendor-card">
+                <a href="@Url.Action("Market45", "Market")"
+                   class="btn btn-primary w-100 vendor-btn-bg"
+                   style="background-image: url('@Url.Content("~/Content/44.jpg")');">
+                    Lorweii
+                </a>
+            </div>
+
+            <div class="vendor-card">
+                <a href="@Url.Action("Market46", "Market")"
+                   class="btn btn-primary w-100 vendor-btn-bg"
+                   style="background-image: url('@Url.Content("~/Content/45.jpg")');">
+                    M&M shop handmade
+                </a>
+            </div>
+
+            <div class="vendor-card">
+                <a href="@Url.Action("Market47", "Market")"
+                   class="btn btn-primary w-100 vendor-btn-bg"
+                   style="background-image: url('@Url.Content("~/Content/46.jpg")');">
+                    RAZ STUDIO
+                </a>
+            </div>
+
+            <div class="vendor-card">
+                <a href="@Url.Action("Market48", "Market")"
+                   class="btn btn-primary w-100 vendor-btn-bg"
+                   style="background-image: url('@Url.Content("~/Content/47.jpg")');">
+                    Sylvia原創手作
+                </a>
+            </div>
+
+            <div class="vendor-card">
+                <a href="@Url.Action("Market49", "Market")"
+                   class="btn btn-primary w-100 vendor-btn-bg"
+                   style="background-image: url('@Url.Content("~/Content/48.jpg")');">
+                    Veronique Accessory
+                </a>
+            </div>
+
+            <div class="vendor-card">
+                <a href="@Url.Action("Market50", "Market")"
+                   class="btn btn-primary w-100 vendor-btn-bg"
+                   style="background-image: url('@Url.Content("~/Content/49.jpg")');">
+                    wowo_house
+                </a>
+            </div>
+
+            <div class="vendor-card">
+                <a href="@Url.Action("Market51", "Market")"
+                   class="btn btn-primary w-100 vendor-btn-bg"
+                   style="background-image: url('@Url.Content("~/Content/50.jpg")');">
+                    天一青工作室
+                </a>
+            </div>
+
+            <div class="vendor-card">
+                <a href="@Url.Action("Market52", "Market")"
+                   class="btn btn-primary w-100 vendor-btn-bg"
+                   style="background-image: url('@Url.Content("~/Content/51.jpg")');">
+                    月瓶女手作
+                </a>
+            </div>
+
+            <div class="vendor-card">
+                <a href="@Url.Action("Market53", "Market")"
+                   class="btn btn-primary w-100 vendor-btn-bg"
+                   style="background-image: url('@Url.Content("~/Content/52.jpg")');">
+                    木然貓日常
+                </a>
+            </div>
+
+            <div class="vendor-card">
+                <a href="@Url.Action("Market54", "Market")"
+                   class="btn btn-primary w-100 vendor-btn-bg"
+                   style="background-image: url('@Url.Content("~/Content/53.jpg")');">
+                    耳根硬ErGenYing
+                </a>
+            </div>
+
+            <div class="vendor-card">
+                <a href="@Url.Action("Market55", "Market")"
+                   class="btn btn-primary w-100 vendor-btn-bg"
+                   style="background-image: url('@Url.Content("~/Content/54.jpg")');">
+                    柿飾好事班尼手作
+                </a>
+            </div>
+
+            <div class="vendor-card">
+                <a href="@Url.Action("Market56", "Market")"
+                   class="btn btn-primary w-100 vendor-btn-bg"
+                   style="background-image: url('@Url.Content("~/Content/55.jpg")');">
+                    漾細工原創
+                </a>
+            </div>
+
+            <div class="vendor-card">
+                <a href="@Url.Action("Market57", "Market")"
+                   class="btn btn-primary w-100 vendor-btn-bg"
+                   style="background-image: url('@Url.Content("~/Content/56.jpg")');">
+                    鍊戀結藝
+                </a>
+            </div>
+
+            <div class="vendor-card">
+                <a href="@Url.Action("Market58", "Market")"
+                   class="btn btn-primary w-100 vendor-btn-bg"
+                   style="background-image: url('@Url.Content("~/Content/57.jpg")');">
+                    鍬鍬手作銀飾
+                </a>
+            </div>
+
+            <div class="vendor-card">
+                <a href="@Url.Action("Market59", "Market")"
+                   class="btn btn-primary w-100 vendor-btn-bg"
+                   style="background-image: url('@Url.Content("~/Content/58.jpg")');">
+                    簡之手作
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- 6. 寵物 -->
+    <div class="category-section">
+        <h3 class="category-title">✵ 𝐏𝐄𝐓𝐒 寵物</h3>
+        <div class="vendor-grid">
+            <div class="vendor-card">
+                <a href="@Url.Action("Market60", "Market")"
+                   class="btn btn-primary w-100 vendor-btn-bg"
+                   style="background-image: url('@Url.Content("~/Content/59.jpg")');">
+                    糜特Meat pet life
+                </a>
+            </div>
+
+            <div class="vendor-card">
+                <a href="@Url.Action("Market61", "Market")"
+                   class="btn btn-primary w-100 vendor-btn-bg"
+                   style="background-image: url('@Url.Content("~/Content/60.jpg")');">
+                    小公主寵物烘焙
+                </a>
+            </div>
+
+            <div class="vendor-card">
+                <a href="@Url.Action("Market62", "Market")"
+                   class="btn btn-primary w-100 vendor-btn-bg"
+                   style="background-image: url('@Url.Content("~/Content/61.jpg")');">
+                    汪喵大盜
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- 7. 甜品 -->
+    <div class="category-section">
+        <h3 class="category-title">✵ 𝐃𝐄𝐒𝐒𝐄𝐑𝐓 甜品</h3>
+        <div class="vendor-grid">
+            <div class="vendor-card">
+                <a href="@Url.Action("Market63", "Market")"
+                   class="btn btn-primary w-100 vendor-btn-bg"
+                   style="background-image: url('@Url.Content("~/Content/62.jpg")');">
+                    HIKARI SEIKA光製菓 <span class="date-badge">10/17</span>
+                </a>
+            </div>
+
+            <div class="vendor-card">
+                <a href="@Url.Action("Market64", "Market")"
+                   class="btn btn-primary w-100 vendor-btn-bg"
+                   style="background-image: url('@Url.Content("~/Content/63.jpg")');">
+                    貝呢烘焙坊
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- 8. 飲品 -->
+    <div class="category-section">
+        <h3 class="category-title">✵ 𝐃𝐑𝐈𝐍𝐊 飲品</h3>
+        <div class="vendor-grid">
+            <div class="vendor-card">
+                <a href="@Url.Action("Market65", "Market")"
+                   class="btn btn-primary w-100 vendor-btn-bg"
+                   style="background-image: url('@Url.Content("~/Content/64.jpg")');">
+                    che!coffee
+                </a>
+            </div>
+
+            <div class="vendor-card">
+                <a href="@Url.Action("Market66", "Market")"
+                   class="btn btn-primary w-100 vendor-btn-bg"
+                   style="background-image: url('@Url.Content("~/Content/65.jpg")');">
+                    世嵵梅酒
+                </a>
+            </div>
+
+            <div class="vendor-card">
+                <a href="@Url.Action("Market67", "Market")"
+                   class="btn btn-primary w-100 vendor-btn-bg"
+                   style="background-image: url('@Url.Content("~/Content/66.jpg")');">
+                    品易烘焙咖啡
+                </a>
+            </div>
+
+            <div class="vendor-card">
+                <a href="@Url.Action("Market68", "Market")"
+                   class="btn btn-primary w-100 vendor-btn-bg"
+                   style="background-image: url('@Url.Content("~/Content/67.jpg")');">
+                    Rinskings芸蒔刻
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- 9. 植栽 -->
+    <div class="category-section">
+        <h3 class="category-title">✵ 𝐏𝐋𝐀𝐍𝐓𝐒 植栽</h3>
+        <div class="vendor-grid">
+            <div class="vendor-card">
+                <a href="@Url.Action("Market69", "Market")"
+                   class="btn btn-primary w-100 vendor-btn-bg"
+                   style="background-image: url('@Url.Content("~/Content/68.jpg")');">
+                    小蘋果微甜幸福手作 <span class="date-badge">10/17</span>
+                </a>
+            </div>
+
+            <div class="vendor-card">
+                <a href="@Url.Action("Market70", "Market")"
+                   class="btn btn-primary w-100 vendor-btn-bg"
+                   style="background-image: url('@Url.Content("~/Content/69.jpg")');">
+                    苔空 Mosspace
+                </a>
+            </div>
+
+            <div class="vendor-card">
+                <a href="@Url.Action("Market71", "Market")"
+                   class="btn btn-primary w-100 vendor-btn-bg"
+                   style="background-image: url('@Url.Content("~/Content/70.jpg")');">
+                    艸字頭水泥工作室
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- 10. 皮革 -->
+    <div class="category-section">
+        <h3 class="category-title">✵ 𝐋𝐄𝐀𝐓𝐇𝐄𝐑 皮革</h3>
+        <div class="vendor-grid">
+            <div class="vendor-card">
+                <a href="@Url.Action("Market72", "Market")"
+                   class="btn btn-primary w-100 vendor-btn-bg"
+                   style="background-image: url('@Url.Content("~/Content/71.jpg")');">
+                    JG Leather Design 手作皮革 <span class="date-badge">10/17</span>
+                </a>
+            </div>
+
+            <div class="vendor-card">
+                <a href="@Url.Action("Market73", "Market")"
+                   class="btn btn-primary w-100 vendor-btn-bg"
+                   style="background-image: url('@Url.Content("~/Content/72.jpg")');">
+                    Old Man Great <span class="date-badge">10/17</span>
+                </a>
+            </div>
+
+            <div class="vendor-card">
+                <a href="@Url.Action("Market74", "Market")"
+                   class="btn btn-primary w-100 vendor-btn-bg"
+                   style="background-image: url('@Url.Content("~/Content/73.jpg")');">
+                    皮叔叔革工房
+                </a>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<!-- ===== 前端即時搜尋腳本 ===== -->
+<script>
+    function filterVendors() {
+        const input = document.getElementById('vendorSearchInput');
+        const filter = input.value.toLowerCase().trim();
+        const clearBtn = document.getElementById('searchClearBtn');
+        const sections = document.querySelectorAll('.category-section');
+        const noResults = document.getElementById('noResults');
+        const searchKeywordText = document.getElementById('searchKeywordText');
+
+        // 控制清除按鈕顯隱
+        clearBtn.style.display = filter.length > 0 ? 'block' : 'none';
+
+        let totalVisibleCount = 0;
+
+        sections.forEach(section => {
+            const categoryTitle = section.querySelector('.category-title').textContent.toLowerCase();
+            const cards = section.querySelectorAll('.vendor-card');
+            let visibleCardsInSection = 0;
+
+            cards.forEach(card => {
+                const vendorText = card.textContent.toLowerCase();
+
+                // 如果關鍵字包含在攤販文字中，或是包含在該分類標題中
+                if (vendorText.includes(filter) || categoryTitle.includes(filter)) {
+                    card.style.display = '';
+                    visibleCardsInSection++;
+                    totalVisibleCount++;
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+
+            // 若整個分類區塊下沒有任何符合的卡片，隱藏整個分類區塊
+            if (visibleCardsInSection > 0) {
+                section.style.display = '';
+            } else {
+                section.style.display = 'none';
+            }
+        });
+
+        // 如果全部沒找到，顯示「無結果」提示
+        if (totalVisibleCount === 0 && filter.length > 0) {
+            searchKeywordText.textContent = input.value;
+            noResults.style.display = 'block';
+        } else {
+            noResults.style.display = 'none';
+        }
+    }
+
+    function clearSearch() {
+        const input = document.getElementById('vendorSearchInput');
+        input.value = '';
+        filterVendors();
+        input.focus();
+    }
+</script>

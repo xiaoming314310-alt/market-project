@@ -1,0 +1,405 @@
+﻿@using System
+@using System.Collections.Generic
+@using System.Linq
+
+@{
+    ViewBag.Title = "行事曆";
+
+    int year = DateTime.Today.Year;
+    int month = DateTime.Today.Month;
+
+    if (Request.QueryString["year"] != null)
+    {
+        int.TryParse(Request.QueryString["year"], out year);
+    }
+
+    if (Request.QueryString["month"] != null)
+    {
+        int.TryParse(Request.QueryString["month"], out month);
+    }
+
+    // 防止年份或月份輸入錯誤
+    if (year < 1 || year > 9999)
+    {
+        year = DateTime.Today.Year;
+    }
+
+    if (month < 1 || month > 12)
+    {
+        month = DateTime.Today.Month;
+    }
+
+    int days = DateTime.DaysInMonth(year, month);
+    int firstDay = (int)new DateTime(year, month, 1).DayOfWeek;
+    int day = 1;
+
+    // ===== 固定行程設定區 =====
+    // 格式：Tuple.Create(月份, 日期) = "行程內容"
+    var events = new Dictionary<Tuple<int, int>, string>
+{
+        { Tuple.Create(10, 17), "市集" },
+        { Tuple.Create(10, 18), "市集" },
+        { Tuple.Create(10, 23), "團隊會議" },
+        { Tuple.Create(12, 25), "聖誕活動" }
+    };
+}
+
+<style>
+     body {
+     background-image: url("@Url.Content("~/Content/work02.jpg")");
+     background-size: cover;
+     background-repeat: no-repeat;
+     background-attachment: fixed;
+     background-position: center;
+     margin: 0;
+     padding: 0;
+ }
+
+    /* 容器基底 */
+    .calendar-card {
+        max-width: 900px;
+        margin: 30px auto;
+        padding: 30px;
+        background: #ffffff;
+        border-radius: 16px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    }
+
+    /* 頂部標題與控制項 */
+    .calendar-header {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        margin-bottom: 25px;
+    }
+
+        .calendar-header h2 {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: #2c3e50;
+            margin: 0 0 15px 0;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+    .calendar-nav {
+        display: flex;
+        gap: 10px;
+        align-items: center;
+    }
+
+        .calendar-nav .btn-nav {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 8px 18px;
+            background-color: #f1f5f9;
+            color: #334155;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            transition: all 0.2s ease;
+        }
+
+            .calendar-nav .btn-nav:hover {
+                background-color: #e2e8f0;
+                color: #0f172a;
+                text-decoration: none;
+            }
+
+        .calendar-nav .btn-today {
+            background-color: #3b82f6;
+            color: #ffffff;
+        }
+
+            .calendar-nav .btn-today:hover {
+                background-color: #2563eb;
+                color: #ffffff;
+            }
+
+    /* 月曆表格 */
+    .calendar-table {
+        width: 100%;
+        border-collapse: separate;
+        border-spacing: 4px;
+        table-layout: fixed;
+    }
+
+        .calendar-table th {
+            background-color: #f8fafc;
+            color: #64748b;
+            font-weight: 700;
+            text-align: center;
+            padding: 12px 0;
+            border-radius: 6px;
+            font-size: 0.9rem;
+        }
+
+        .calendar-table td {
+            height: 95px;
+            padding: 8px 6px;
+            background: #ffffff;
+            border: 1px solid #f1f5f9;
+            border-radius: 8px;
+            vertical-align: top;
+            transition: border-color 0.2s ease, box-shadow 0.2s ease;
+        }
+
+            .calendar-table td:hover {
+                border-color: #cbd5e1;
+                box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+            }
+
+            /* 今天樣式 */
+            .calendar-table td.today {
+                background-color: #fefce8;
+                border: 2px solid #fde047;
+            }
+
+                .calendar-table td.today .day-number {
+                    color: #ca8a04;
+                    font-weight: 800;
+                }
+
+    /* 日期數字 */
+    .day-number {
+        font-size: 0.95rem;
+        font-weight: 600;
+        color: #475569;
+        margin-bottom: 6px;
+    }
+
+    /* 行程標籤 */
+    .event-label {
+        display: block;
+        margin-top: 4px;
+        padding: 4px 6px;
+        background-color: #ecfdf5;
+        color: #047857;
+        border-left: 3px solid #10b981;
+        border-radius: 4px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        line-height: 1.3;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    /* 圖例與提示 */
+    .today-label {
+        text-align: center;
+        margin-top: 20px;
+        color: #64748b;
+        font-size: 0.85rem;
+        display: flex;
+        justify-content: center;
+        gap: 20px;
+    }
+
+    .legend-item {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+    .legend-box {
+        width: 12px;
+        height: 12px;
+        border-radius: 3px;
+    }
+
+    /* 本月行程列表清單 */
+    .event-list-section {
+        margin-top: 30px;
+        padding: 20px;
+        background: #f8fafc;
+        border-radius: 12px;
+        border: 1px solid #f1f5f9;
+    }
+
+        .event-list-section h3 {
+            margin: 0 0 15px 0;
+            color: #1e293b;
+            font-size: 1.1rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+    .event-ul {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .event-li {
+        display: flex;
+        align-items: center;
+        padding: 10px 14px;
+        background: #ffffff;
+        border-radius: 8px;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        font-size: 0.9rem;
+        color: #334155;
+    }
+
+    .event-date-badge {
+        background-color: #e0f2fe;
+        color: #0369a1;
+        font-weight: 700;
+        padding: 3px 10px;
+        border-radius: 20px;
+        font-size: 0.8rem;
+        margin-right: 12px;
+    }
+
+    .empty-event {
+        color: #94a3b8;
+        margin: 0;
+        font-size: 0.9rem;
+    }
+
+    /* 響應式調整 */
+    @@media (max-width: 600px) {
+        .calendar-card {
+            padding: 15px 10px;
+        }
+
+        .calendar-table td {
+            height: 70px;
+            padding: 4px 2px;
+        }
+
+        .day-number {
+            font-size: 0.85rem;
+        }
+
+        .event-label {
+            font-size: 0.65rem;
+            padding: 2px 3px;
+        }
+    }
+</style>
+
+<main>
+    <div class="calendar-card">
+
+        <div class="calendar-header">
+            <h2>📅 @year 年 @month 月</h2>
+
+            <div class="calendar-nav">
+                <a class="btn-nav" href="@Url.Action("Contact", "Home", new {
+                    year = month == 1 ? year - 1 : year,
+                    month = month == 1 ? 12 : month - 1
+                })">
+                    ◀ 上個月
+                </a>
+
+                <a class="btn-nav btn-today" href="@Url.Action("Contact", "Home")">
+                    今天
+                </a>
+
+                <a class="btn-nav" href="@Url.Action("Contact", "Home", new {
+                    year = month == 12 ? year + 1 : year,
+                    month = month == 12 ? 1 : month + 1
+                })">
+                    下個月 ▶
+                </a>
+            </div>
+        </div>
+
+        <table class="calendar-table">
+            <thead>
+                <tr>
+                    <th>日</th>
+                    <th>一</th>
+                    <th>二</th>
+                    <th>三</th>
+                    <th>四</th>
+                    <th>五</th>
+                    <th>六</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                @for (int row = 0; row < 6 && day <= days; row++)
+                {
+                    <tr>
+                        @for (int col = 0; col < 7; col++)
+                        {
+                            if ((row == 0 && col < firstDay) || day > days)
+                            {
+                                <td style="border: none; background: transparent;"></td>
+                            }
+                            else
+                            {
+                                bool isToday =
+                                    year == DateTime.Today.Year &&
+                                    month == DateTime.Today.Month &&
+                                    day == DateTime.Today.Day;
+
+                                var eventKey = Tuple.Create(month, day);
+
+                                <td class="@(isToday ? "today" : "")">
+                                    <div class="day-number">@day</div>
+
+                                    @if (events.ContainsKey(eventKey))
+                                    {
+                                        <div class="event-label" title="@events[eventKey]">
+                                            @events[eventKey]
+                                        </div>
+                                    }
+                                </td>
+
+                                day++;
+                            }
+                        }
+                    </tr>
+                }
+            </tbody>
+        </table>
+
+        <div class="today-label">
+            <span class="legend-item">
+                <span class="legend-box" style="background-color: #fde047; border: 1px solid #ca8a04;"></span> 今天
+            </span>
+            <span class="legend-item">
+                <span class="legend-box" style="background-color: #10b981;"></span> 行程
+            </span>
+        </div>
+
+        <div class="event-list-section">
+            <h3>📋 @month 月行程列表</h3>
+
+            @{
+                var currentMonthEvents = events.Where(e => e.Key.Item1 == month).OrderBy(e => e.Key.Item2).ToList();
+            }
+
+            @if (currentMonthEvents.Any())
+            {
+                <ul class="event-ul">
+                    @foreach (var item in currentMonthEvents)
+                    {
+                        <li class="event-li">
+                            <span class="event-date-badge">@item.Key.Item1 月 @item.Key.Item2 日</span>
+                            <span>@item.Value</span>
+                        </li>
+                    }
+                </ul>
+            }
+            else
+            {
+                <p class="empty-event">本月尚無安排行程。</p>
+            }
+        </div>
+
+    </div>
+</main>

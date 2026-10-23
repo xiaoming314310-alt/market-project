@@ -1,0 +1,16 @@
+## Visual Studio cache / temporary files
+.vs/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+## Build results
+[Bb]in/
+[Oo]bj/
+[Dd]ebug/
+[Rr]elease/
+
+## Windows thumbnail cache
+Thumbs.db
+ehthumbs.db
